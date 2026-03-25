@@ -1,5 +1,5 @@
+import { evaluateRisk } from "../../agent/src/riskAgent";
 import { ApolloServer, gql } from "apollo-server";
-
 const typeDefs = gql`
   type LoanApplication {
     id: ID!
@@ -23,8 +23,22 @@ const resolvers = {
   Query: {
     applications: () => applications,
   },
-  Mutation: {
-    submitApplication: (_: any, { name, amount }: any) => {
+ Mutation: {
+  submitApplication: (_, { name, amount }) => {
+    const result = evaluateRisk({ name, amount });
+
+    const application = {
+      id: Date.now().toString(),
+      name,
+      amount,
+      status: result.decision,
+    };
+
+    applications.push(application);
+
+    return application;
+  },
+}
       const newApp = {
         id: Date.now().toString(),
         name,
